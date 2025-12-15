@@ -1281,6 +1281,19 @@
                         <textarea id="notes" name="notes"
                             placeholder="Interview details, contacts, follow-ups..."></textarea>
                     </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="resumeId">Resume Used</label>
+                            <select id="resumeId" name="resumeId">
+                                <option value="">-- Select Resume --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Upload New Resume</label>
+                            <input type="file" id="resumeUpload" accept=".pdf,.doc,.docx"
+                                style="font-size: var(--font-size-sm);">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
@@ -1304,6 +1317,81 @@
                 <button type="button" class="btn btn-secondary" id="confirmCancel" style="flex: 1;">Keep It</button>
                 <button type="button" class="btn btn-danger" id="confirmDelete" style="flex: 1;">Delete</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Interview Modal -->
+    <div class="modal-backdrop" id="interviewModalBackdrop">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2 id="interviewModalTitle">Add Interview Round</h2>
+                <button class="btn btn-icon" id="closeInterviewModal" aria-label="Close">✕</button>
+            </div>
+            <form id="interviewForm">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewRound">Round #</label>
+                            <input type="number" id="interviewRound" name="round" min="1" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewType">Type</label>
+                            <select id="interviewType" name="type" required>
+                                <option value="HR">HR</option>
+                                <option value="Tech">Tech</option>
+                                <option value="System Design">System Design</option>
+                                <option value="Take-home">Take-home</option>
+                                <option value="Culture">Culture Fit</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewDateTime">Date & Time</label>
+                            <input type="datetime-local" id="interviewDateTime" name="dateTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewTimezone">Timezone</label>
+                            <select id="interviewTimezone" name="timezone">
+                                <option value="Asia/Kolkata">IST (India)</option>
+                                <option value="America/New_York">EST (New York)</option>
+                                <option value="America/Los_Angeles">PST (LA)</option>
+                                <option value="Europe/London">GMT (London)</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewerName">Interviewer Name</label>
+                            <input type="text" id="interviewerName" name="interviewerName"
+                                placeholder="e.g. John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewerRole">Interviewer Role</label>
+                            <input type="text" id="interviewerRole" name="interviewerRole"
+                                placeholder="e.g. Senior Engineer">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewNotes">Notes</label>
+                        <textarea id="interviewNotes" name="notes" rows="2"
+                            placeholder="Preparation notes, questions to ask..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewOutcome">Outcome</label>
+                        <select id="interviewOutcome" name="outcome">
+                            <option value="pending">⏳ Pending</option>
+                            <option value="passed">✅ Passed</option>
+                            <option value="failed">❌ Failed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelInterviewBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Interview</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1356,7 +1444,7 @@
 
         // ===== IndexedDB Local Storage =====
         const DB_NAME = 'JobTrackerDB';
-        const DB_VERSION = 1;
+        const DB_VERSION = 2; // Bumped for resumes + interviews
         let idb = null;
         const SYNC_KEY = 'job_tracker_last_sync';
         const PENDING_KEY = 'job_tracker_pending';
@@ -1369,9 +1457,21 @@
                 request.onsuccess = () => { idb = request.result; resolve(idb); };
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
+                    // Applications store
                     if (!db.objectStoreNames.contains('applications')) {
                         const store = db.createObjectStore('applications', { keyPath: 'id' });
                         store.createIndex('updatedAt', 'updatedAt');
+                    }
+                    // Resumes store (local-only, not synced)
+                    if (!db.objectStoreNames.contains('resumes')) {
+                        const resumeStore = db.createObjectStore('resumes', { keyPath: 'id' });
+                        resumeStore.createIndex('name', 'name');
+                    }
+                    // Interviews store
+                    if (!db.objectStoreNames.contains('interviews')) {
+                        const interviewStore = db.createObjectStore('interviews', { keyPath: 'id' });
+                        interviewStore.createIndex('applicationId', 'applicationId');
+                        interviewStore.createIndex('dateTime', 'dateTime');
                     }
                 };
             });
@@ -1417,6 +1517,86 @@
                 const request = store.get(id);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
+            });
+        }
+
+        // ===== Resume Functions =====
+        async function saveResume(resume) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readwrite');
+                const store = tx.objectStore('resumes');
+                store.put(resume);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function getAllResumes() {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readonly');
+                const store = tx.objectStore('resumes');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getResumeById(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readonly');
+                const store = tx.objectStore('resumes');
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteResume(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readwrite');
+                const store = tx.objectStore('resumes');
+                store.delete(id);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        // ===== Interview Functions =====
+        async function saveInterview(interview) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readwrite');
+                const store = tx.objectStore('interviews');
+                store.put(interview);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function getInterviewsByAppId(appId) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readonly');
+                const store = tx.objectStore('interviews');
+                const index = store.index('applicationId');
+                const request = index.getAll(appId);
+                request.onsuccess = () => resolve(request.result.sort((a, b) => a.round - b.round));
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteInterview(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readwrite');
+                const store = tx.objectStore('interviews');
+                store.delete(id);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
             });
         }
 
@@ -1656,7 +1836,7 @@
 
         // Local-first CRUD functions
         async function addApplication(data) {
-            const app = { id: generateId(), company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+            const app = { id: generateId(), company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, resumeId: data.resumeId || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
             await saveLocal(app);
             addPendingChange(app.id);
             applications.unshift(app);
@@ -1667,7 +1847,7 @@
         async function updateApplication(id, data) {
             const existing = await getLocalById(id);
             if (!existing) return;
-            const updated = { ...existing, company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, updatedAt: new Date().toISOString() };
+            const updated = { ...existing, company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, resumeId: data.resumeId || null, updatedAt: new Date().toISOString() };
             await saveLocal(updated);
             addPendingChange(id);
             const idx = applications.findIndex(a => a.id === id);
@@ -1825,6 +2005,110 @@
             touchStartY = 0;
             isPulling = false;
         });
+
+        // ===== Resume Upload Handling =====
+        const resumeUpload = document.getElementById('resumeUpload');
+        const resumeIdSelect = document.getElementById('resumeId');
+
+        async function populateResumeDropdown(selectedId = '') {
+            const resumes = await getAllResumes();
+            resumeIdSelect.innerHTML = '<option value="">-- Select Resume --</option>' +
+                resumes.map(r => `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${escapeHtml(r.name)}</option>`).join('');
+        }
+
+        resumeUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const resume = {
+                    id: generateId(),
+                    name: file.name.replace(/\.[^.]+$/, ''),
+                    fileName: file.name,
+                    fileData: reader.result,
+                    fileType: file.type,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                await saveResume(resume);
+                await populateResumeDropdown(resume.id);
+                showToast(`Resume "${resume.name}" saved`);
+                resumeUpload.value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // ===== Interview Modal Handling =====
+        const interviewModalBackdrop = document.getElementById('interviewModalBackdrop');
+        const interviewForm = document.getElementById('interviewForm');
+        let currentInterviewAppId = null;
+        let editingInterviewId = null;
+
+        function openInterviewModal(appId, interviewData = null) {
+            currentInterviewAppId = appId;
+            editingInterviewId = interviewData?.id || null;
+            document.getElementById('interviewModalTitle').textContent = interviewData ? 'Edit Interview' : 'Add Interview Round';
+
+            if (interviewData) {
+                document.getElementById('interviewRound').value = interviewData.round || 1;
+                document.getElementById('interviewType').value = interviewData.type || 'Tech';
+                document.getElementById('interviewDateTime').value = interviewData.dateTime?.slice(0, 16) || '';
+                document.getElementById('interviewTimezone').value = interviewData.timezone || 'Asia/Kolkata';
+                document.getElementById('interviewerName').value = interviewData.interviewerName || '';
+                document.getElementById('interviewerRole').value = interviewData.interviewerRole || '';
+                document.getElementById('interviewNotes').value = interviewData.notes || '';
+                document.getElementById('interviewOutcome').value = interviewData.outcome || 'pending';
+            } else {
+                interviewForm.reset();
+            }
+
+            interviewModalBackdrop.classList.add('active');
+        }
+
+        function closeInterviewModal() {
+            interviewModalBackdrop.classList.remove('active');
+            interviewForm.reset();
+            currentInterviewAppId = null;
+            editingInterviewId = null;
+        }
+
+        document.getElementById('closeInterviewModal').addEventListener('click', closeInterviewModal);
+        document.getElementById('cancelInterviewBtn').addEventListener('click', closeInterviewModal);
+        interviewModalBackdrop.addEventListener('click', (e) => { if (e.target === interviewModalBackdrop) closeInterviewModal(); });
+
+        interviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(interviewForm);
+            const interview = {
+                id: editingInterviewId || generateId(),
+                applicationId: currentInterviewAppId,
+                round: parseInt(formData.get('round')),
+                type: formData.get('type'),
+                dateTime: formData.get('dateTime'),
+                timezone: formData.get('timezone'),
+                interviewerName: formData.get('interviewerName') || null,
+                interviewerRole: formData.get('interviewerRole') || null,
+                notes: formData.get('notes') || null,
+                outcome: formData.get('outcome'),
+                createdAt: editingInterviewId ? undefined : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            await saveInterview(interview);
+            showToast(editingInterviewId ? 'Interview updated' : 'Interview added');
+            closeInterviewModal();
+            render();
+        });
+
+        // Make openInterviewModal available globally
+        window.openInterviewModal = openInterviewModal;
+
+        // Populate resume dropdown on modal open
+        const originalOpenModal = openModal;
+        openModal = async function (isEdit = false) {
+            await populateResumeDropdown();
+            originalOpenModal(isEdit);
+        };
     </script>
 </body>
 
