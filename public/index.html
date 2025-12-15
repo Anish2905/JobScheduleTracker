@@ -1833,6 +1833,7 @@
                                 <span class="status-${i.outcome === 'passed' ? 'accepted' : i.outcome === 'failed' ? 'rejected' : 'wishlist'}" style="font-size: 10px; padding: 2px 6px; border-radius: 4px;">${i.type}</span>
                                 <span>${i.dateTime ? new Date(i.dateTime).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</span>
                                 ${i.outcome === 'passed' ? '✅' : i.outcome === 'failed' ? '❌' : '⏳'}
+                                <button onclick="event.stopPropagation(); removeInterview('${i.id}')" title="Delete interview" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;">🗑️</button>
                             </div>
                         `).join('')}
                     </div>
@@ -1954,7 +1955,7 @@
             showToast('Restored');
             syncToCloud();
         }
-        function editApp(id) {
+        async function editApp(id) {
             const app = applications.find(a => a.id === id); if (!app) return;
             editingId = id;
             document.getElementById('company').value = app.company;
@@ -1963,6 +1964,7 @@
             document.getElementById('appliedDate').value = app.appliedDate || '';
             document.getElementById('url').value = app.url || '';
             document.getElementById('notes').value = app.notes || '';
+            await populateResumeDropdown(app.resumeId || '');
             openModal(true);
         }
 
@@ -2173,6 +2175,14 @@
             }
         }
         window.viewResume = viewResume;
+
+        // ===== Remove Interview =====
+        async function removeInterview(interviewId) {
+            await deleteInterview(interviewId);
+            showToast('Interview removed');
+            render();
+        }
+        window.removeInterview = removeInterview;
     </script>
 </body>
 
