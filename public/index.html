@@ -658,7 +658,7 @@
             top: 0;
             bottom: 0;
             width: 4px;
-            background: linear-gradient(180deg, var(--color-primary) 0%, hsl(280, 80%, 60%) 100%);
+            background: var(--color-border-hover);
             opacity: 0;
             transition: opacity var(--transition-fast);
         }
@@ -667,10 +667,15 @@
             opacity: 1;
         }
 
+        /* Don't override interview highlight border */
+        .app-card.interview-highlight::before {
+            display: none;
+        }
+
         .app-card:hover {
-            box-shadow: var(--shadow-card-hover), 0 0 20px hsla(var(--hue-primary), 85%, 50%, 0.08);
-            transform: translateY(-3px);
-            border-color: hsla(var(--hue-primary), 70%, 70%, 0.3);
+            box-shadow: var(--shadow-card-hover);
+            transform: translateY(-2px);
+            border-color: var(--color-border-hover);
         }
 
         .app-card-main {
