@@ -1208,6 +1208,7 @@
                 <button class="btn btn-icon" id="themeToggle" aria-label="Toggle theme"
                     title="Toggle dark mode">🌙</button>
                 <button class="btn btn-icon" id="exportBtn" aria-label="Export to CSV" title="Export to CSV">📥</button>
+                <button class="btn btn-icon" id="syncBtn" aria-label="Sync Now" title="Sync Now">🔄</button>
                 <button class="btn btn-primary" id="addBtn">+ Add</button>
                 <button class="btn btn-secondary" id="logoutBtn">Logout</button>
             </div>
@@ -2063,6 +2064,28 @@
             showToast(`Exported ${applications.length} applications`);
         }
         document.getElementById('exportBtn').addEventListener('click', exportToCSV);
+
+        // Manual Sync Button
+        document.getElementById('syncBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('syncBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳';
+            showToast('Syncing...');
+            try {
+                await syncToCloud();
+                await syncFromCloud();
+                await syncResumesFromCloud();
+                applications = await getAllLocal();
+                render();
+                showToast('✓ Synced successfully');
+            } catch (e) {
+                console.error('Manual sync failed:', e);
+                showToast('Sync failed', false, true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄';
+            }
+        });
 
         document.getElementById('addBtn').addEventListener('click', () => openModal());
         document.getElementById('addBtnEmpty').addEventListener('click', () => openModal());
