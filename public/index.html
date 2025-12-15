@@ -861,7 +861,9 @@
 <body>
     <!-- Auth View -->
     <div class="auth-container" id="authView">
-        <div class="auth-card">
+        <div class="auth-card" style="position: relative;">
+            <button class="btn btn-icon" id="authThemeToggle" aria-label="Toggle theme" title="Toggle dark mode"
+                style="position: absolute; top: var(--space-4); right: var(--space-4);">🌙</button>
             <div class="auth-logo">
                 <div class="auth-logo-icon">📋</div>
                 <h1>Job Tracker</h1>
@@ -899,7 +901,10 @@
     <!-- App View -->
     <div class="container hidden" id="appView">
         <header>
-            <h1>My Applications</h1>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <h1>My Applications</h1>
+                <span id="statusIndicator" style="font-size: var(--font-size-xs); font-weight: 500;">🟢 Online</span>
+            </div>
             <div style="display: flex; align-items: center; gap: var(--space-3);">
                 <button class="btn btn-icon" id="themeToggle" aria-label="Toggle theme"
                     title="Toggle dark mode">🌙</button>
@@ -997,6 +1002,7 @@
         // ===== Theme Toggle (respects system preference, persists choice) =====
         const THEME_KEY = 'job_tracker_theme';
         const themeToggle = document.getElementById('themeToggle');
+        const authThemeToggle = document.getElementById('authThemeToggle');
 
         function getPreferredTheme() {
             const saved = localStorage.getItem(THEME_KEY);
@@ -1007,21 +1013,37 @@
         function setTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem(THEME_KEY, theme);
-            if (themeToggle) themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            const icon = theme === 'dark' ? '☀️' : '🌙';
+            if (themeToggle) themeToggle.textContent = icon;
+            if (authThemeToggle) authThemeToggle.textContent = icon;
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme') || 'light';
+            setTheme(current === 'dark' ? 'light' : 'dark');
         }
 
         setTheme(getPreferredTheme());
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
-                const current = document.documentElement.getAttribute('data-theme') || 'light';
-                setTheme(current === 'dark' ? 'light' : 'dark');
-            });
-        }
+        if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+        if (authThemeToggle) authThemeToggle.addEventListener('click', toggleTheme);
 
         // Listen for system preference changes
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
             if (!localStorage.getItem(THEME_KEY)) setTheme(e.matches ? 'dark' : 'light');
         });
+
+        // ===== Connection Status Indicator =====
+        const statusIndicator = document.getElementById('statusIndicator');
+        function updateConnectionStatus() {
+            if (statusIndicator) {
+                const online = navigator.onLine;
+                statusIndicator.textContent = online ? '🟢 Online' : '🔴 Offline';
+                statusIndicator.style.color = online ? 'var(--color-accepted)' : 'var(--color-rejected)';
+            }
+        }
+        updateConnectionStatus();
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
 
         const API_BASE = window.location.origin + '/api';
         const TOKEN_KEY = 'job_tracker_token';
