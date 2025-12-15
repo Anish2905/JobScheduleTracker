@@ -1,0 +1,12 @@
+{
+    "name": "job-tracker",
+    "version": "1.0.0",
+    "description": "Job Applicant Tracker",
+    "scripts": {
+        "start": "cd server && npm install && node server.js",
+        "postinstall": "cd server && npm install"
+    },
+    "engines": {
+        "node": ">=18"
+    }
+}
