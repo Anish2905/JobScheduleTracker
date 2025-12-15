@@ -264,6 +264,59 @@
             cursor: not-allowed;
         }
 
+        .btn-danger {
+            background: linear-gradient(135deg, hsl(0, 70%, 55%) 0%, hsl(0, 80%, 45%) 100%);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px hsla(0, 70%, 50%, 0.4);
+        }
+
+        /* Confirm Modal */
+        .confirm-modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-7);
+            max-width: 360px;
+            text-align: center;
+            box-shadow: var(--shadow-modal);
+            animation: fadeInUp 0.2s ease-out;
+        }
+
+        .confirm-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+            filter: grayscale(0.2);
+        }
+
+        .confirm-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: var(--space-3);
+        }
+
+        .confirm-details {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--space-2);
+            word-break: break-word;
+        }
+
+        .confirm-message {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+            margin-bottom: var(--space-6);
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: var(--space-3);
+        }
+
         .btn-primary {
             background: linear-gradient(135deg, var(--color-primary) 0%, hsl(280, 75%, 55%) 100%);
             color: white;
@@ -1138,22 +1191,14 @@
 
     <!-- Delete Confirmation Modal -->
     <div class="modal-backdrop" id="confirmBackdrop">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header" style="border-bottom: none;">
-                <h2 id="confirmTitle" style="color: hsl(0, 70%, 50%);">⚠️ Delete Application?</h2>
-            </div>
-            <div class="modal-body" style="text-align: center; padding-bottom: var(--space-6);">
-                <p id="confirmMessage" style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
-                    This will permanently delete this application. This action cannot be undone.
-                </p>
-                <p id="confirmDetails" style="font-weight: 600; font-size: var(--font-size-lg);"></p>
-            </div>
-            <div class="modal-footer" style="justify-content: center; gap: var(--space-4); border-top: none;">
-                <button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>
-                <button type="button" class="btn" id="confirmDelete"
-                    style="background: linear-gradient(135deg, hsl(0, 70%, 55%) 0%, hsl(0, 80%, 45%) 100%); color: white;">
-                    Delete Forever
-                </button>
+        <div class="confirm-modal">
+            <div class="confirm-icon">🗑️</div>
+            <h2 class="confirm-title">Delete Application?</h2>
+            <p class="confirm-details" id="confirmDetails"></p>
+            <p class="confirm-message">This action cannot be undone.</p>
+            <div class="confirm-buttons">
+                <button type="button" class="btn btn-secondary" id="confirmCancel" style="flex: 1;">Keep It</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete" style="flex: 1;">Delete</button>
             </div>
         </div>
     </div>
