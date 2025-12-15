@@ -1291,8 +1291,10 @@
                         <!-- Linked resume display (hidden by default) -->
                         <div id="resumeLinked"
                             style="display: none; padding: var(--space-3); background: var(--color-primary-light); border-radius: var(--radius-sm); align-items: center; justify-content: space-between; gap: var(--space-3);">
-                            <span style="display: flex; align-items: center; gap: var(--space-2);">📄 <span
-                                    id="linkedResumeName" style="font-weight: 500;"></span></span>
+                            <span
+                                style="display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0;">📄
+                                <span id="linkedResumeName"
+                                    style="font-weight: 500; word-break: break-all; white-space: normal;"></span></span>
                             <span style="display: flex; gap: var(--space-2);">
                                 <button type="button" onclick="viewLinkedResume()" class="btn btn-icon"
                                     style="font-size: 12px; padding: 4px 8px;" title="View resume">👁️ View</button>
@@ -2150,7 +2152,35 @@
         // Show/hide resume UI based on whether resumeId exists
         async function showResumeUI(resumeId) {
             if (resumeId) {
-                const resume = await getResumeById(resumeId);
+                let resume = await getResumeById(resumeId);
+
+                // Fallback: If not found locally, try fetching metadata from cloud
+                if (!resume) {
+                    // Show "Loading..." state temporarily
+                    linkedResumeName.textContent = 'Loading resume info...';
+                    resumeLinked.style.display = 'flex';
+                    resumeUploadSection.style.display = 'none';
+                    resumeIdField.value = resumeId;
+
+                    try {
+                        const token = getToken();
+                        if (token) {
+                            const res = await fetch(`${API_BASE}/resume-sync?id=${resumeId}`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (res.ok) {
+                                const data = await res.json();
+                                if (data.resume) {
+                                    resume = data.resume;
+                                    await saveResume(resume); // Save for future
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to quick-fetch resume:', e);
+                    }
+                }
+
                 if (resume) {
                     linkedResumeName.textContent = resume.fileName || resume.name;
                     resumeLinked.style.display = 'flex';
