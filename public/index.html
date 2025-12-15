@@ -1288,7 +1288,8 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="resumeId">Resume Used</label>
+                            <label for="resumeId">Resume Used <span id="resumeCount"
+                                    style="font-weight:400;color:var(--color-text-tertiary);"></span></label>
                             <select id="resumeId" name="resumeId">
                                 <option value="">-- Select Resume --</option>
                             </select>
@@ -2087,8 +2088,10 @@
 
         async function populateResumeDropdown(selectedId = '') {
             const resumes = await getAllResumes();
+            const countEl = document.getElementById('resumeCount');
+            if (countEl) countEl.textContent = resumes.length > 0 ? `(${resumes.length} saved)` : '';
             resumeIdSelect.innerHTML = '<option value="">-- Select Resume --</option>' +
-                resumes.map(r => `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${escapeHtml(r.name)}</option>`).join('');
+                resumes.map(r => `<option value="${r.id}" ${r.id === selectedId ? 'selected' : ''}>${escapeHtml(r.fileName || r.name)}</option>`).join('');
         }
 
         resumeUpload.addEventListener('change', async (e) => {
@@ -2099,7 +2102,7 @@
             reader.onload = async () => {
                 const resume = {
                     id: generateId(),
-                    name: file.name.replace(/\.[^.]+$/, ''),
+                    name: file.name, // Use full filename as name
                     fileName: file.name,
                     fileData: reader.result,
                     fileType: file.type,
@@ -2109,7 +2112,7 @@
                 await saveResume(resume);
                 await syncResumeToCloud(resume); // Sync to cloud
                 await populateResumeDropdown(resume.id);
-                showToast(`Resume "${resume.name}" saved & synced`);
+                showToast(`Resume "${file.name}" synced`);
                 resumeUpload.value = '';
             };
             reader.readAsDataURL(file);
