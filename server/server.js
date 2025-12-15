@@ -9,8 +9,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'job-tracker-secret-change-in-production';
 
-// Middleware
-app.use(cors());
+// Middleware - explicit CORS for Railway/Render
+app.use(cors({
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}));
+app.options('*', cors()); // Handle preflight for all routes
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
