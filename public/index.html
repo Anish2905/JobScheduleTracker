@@ -2196,6 +2196,16 @@
                 if (!res.ok) {
                     const text = await res.text();
                     console.error('Resume sync error response:', text);
+                    // Critical: Alert user in production to identify the issue
+                    if (res.status === 413) {
+                        showToast('File too large (max 4.5MB)', false, true);
+                    } else if (res.status === 404) {
+                        showToast('Sync API not found (404)', false, true);
+                        // alert('Debug: API 404. Check vercel.json');
+                    } else {
+                        showToast(`Sync Error: ${res.status}`, false, true);
+                        // alert(`Debug: Sync failed ${res.status}: ${text.substring(0, 100)}`);
+                    }
                     if (res.status === 413) throw new Error('File too large for cloud');
                     throw new Error(`Server error: ${res.status}`);
                 }
