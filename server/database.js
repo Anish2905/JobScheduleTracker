@@ -16,12 +16,12 @@ async function initDatabase() {
     db = new SQL.Database();
   }
 
-  // Initialize schema - Users table
+  // Initialize schema - Users table (username + PIN)
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
-      email TEXT UNIQUE NOT NULL,
-      password_hash TEXT NOT NULL,
+      username TEXT UNIQUE NOT NULL,
+      pin_hash TEXT NOT NULL,
       created_at TEXT NOT NULL
     )
   `);

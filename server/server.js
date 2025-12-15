@@ -45,29 +45,33 @@ function generateId() {
 app.post('/api/register', async (req, res) => {
     try {
         const db = getDb();
-        const { email, password } = req.body;
+        const { username, pin } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
+        if (!username || !pin) {
+            return res.status(400).json({ error: 'Username and PIN required' });
         }
 
-        if (password.length < 6) {
-            return res.status(400).json({ error: 'Password must be at least 6 characters' });
+        if (username.length < 3) {
+            return res.status(400).json({ error: 'Username must be at least 3 characters' });
+        }
+
+        if (!/^\d{4}$/.test(pin)) {
+            return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
         }
 
         // Check if user exists
-        const existing = db.exec('SELECT id FROM users WHERE email = ?', [email]);
+        const existing = db.exec('SELECT id FROM users WHERE username = ?', [username.toLowerCase()]);
         if (existing.length > 0 && existing[0].values.length > 0) {
-            return res.status(400).json({ error: 'Email already registered' });
+            return res.status(400).json({ error: 'Username already taken' });
         }
 
         const id = generateId();
-        const passwordHash = await bcrypt.hash(password, 10);
+        const pinHash = await bcrypt.hash(pin, 10);
         const createdAt = new Date().toISOString();
 
         db.run(
-            'INSERT INTO users (id, email, password_hash, created_at) VALUES (?, ?, ?, ?)',
-            [id, email, passwordHash, createdAt]
+            'INSERT INTO users (id, username, pin_hash, created_at) VALUES (?, ?, ?, ?)',
+            [id, username.toLowerCase(), pinHash, createdAt]
         );
         saveDatabase();
 
@@ -83,19 +87,19 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const db = getDb();
-        const { email, password } = req.body;
+        const { username, pin } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password required' });
+        if (!username || !pin) {
+            return res.status(400).json({ error: 'Username and PIN required' });
         }
 
-        const result = db.exec('SELECT id, password_hash FROM users WHERE email = ?', [email]);
+        const result = db.exec('SELECT id, pin_hash FROM users WHERE username = ?', [username.toLowerCase()]);
         if (result.length === 0 || result[0].values.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const [userId, passwordHash] = result[0].values[0];
-        const valid = await bcrypt.compare(password, passwordHash);
+        const [userId, pinHash] = result[0].values[0];
+        const valid = await bcrypt.compare(pin, pinHash);
 
         if (!valid) {
             return res.status(401).json({ error: 'Invalid credentials' });
