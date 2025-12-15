@@ -1289,9 +1289,14 @@
                     </div>
                     <div class="form-group">
                         <label for="resumeUrl">Resume Link</label>
-                        <input type="url" id="resumeUrl" name="resumeUrl"
-                            placeholder="https://drive.google.com/... or https://yoursite.com/resume.pdf"
-                            style="font-size: var(--font-size-sm);">
+                        <div style="display: flex; gap: var(--space-2); align-items: center;">
+                            <input type="url" id="resumeUrl" name="resumeUrl"
+                                placeholder="https://drive.google.com/... or https://yoursite.com/resume.pdf"
+                                style="font-size: var(--font-size-sm); flex: 1;">
+                            <button type="button" id="viewResumeBtn" class="btn btn-icon"
+                                onclick="const url = document.getElementById('resumeUrl').value; if(url) window.open(url, '_blank'); else showToast('No resume link provided', false, true);"
+                                title="View Resume" style="padding: 8px 12px;">👁️</button>
+                        </div>
                         <small style="display: block; margin-top: var(--space-1); color: var(--color-text-tertiary);">
                             Paste a link to your resume (Google Drive, Dropbox, or direct URL)
                         </small>
@@ -2054,7 +2059,7 @@
             try {
                 await syncToCloud();
                 await syncFromCloud();
-                await syncResumesFromCloud();
+                // Resume sync no longer needed - using simple URL links now
                 applications = await getAllLocal();
                 render();
                 showToast('✓ Synced successfully');
