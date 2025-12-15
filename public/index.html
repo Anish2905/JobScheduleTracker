@@ -1136,6 +1136,28 @@
     <div class="toast" id="toast"><span id="toastMessage"></span><button class="toast-undo" id="toastUndo"
             style="display: none;">Undo</button></div>
 
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop" id="confirmBackdrop">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="border-bottom: none;">
+                <h2 id="confirmTitle" style="color: hsl(0, 70%, 50%);">⚠️ Delete Application?</h2>
+            </div>
+            <div class="modal-body" style="text-align: center; padding-bottom: var(--space-6);">
+                <p id="confirmMessage" style="color: var(--color-text-secondary); margin-bottom: var(--space-4);">
+                    This will permanently delete this application. This action cannot be undone.
+                </p>
+                <p id="confirmDetails" style="font-weight: 600; font-size: var(--font-size-lg);"></p>
+            </div>
+            <div class="modal-footer" style="justify-content: center; gap: var(--space-4); border-top: none;">
+                <button type="button" class="btn btn-secondary" id="confirmCancel">Cancel</button>
+                <button type="button" class="btn" id="confirmDelete"
+                    style="background: linear-gradient(135deg, hsl(0, 70%, 55%) 0%, hsl(0, 80%, 45%) 100%); color: white;">
+                    Delete Forever
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ===== Theme Toggle (respects system preference, persists choice) =====
         const THEME_KEY = 'job_tracker_theme';
@@ -1486,9 +1508,42 @@
             if (idx !== -1) applications[idx] = updated;
             render();
             showToast('Changes saved');
-            syncToCloud();
         }
+
+        // Delete confirmation modal
+        const confirmBackdrop = document.getElementById('confirmBackdrop');
+        const confirmDetails = document.getElementById('confirmDetails');
+        const confirmCancel = document.getElementById('confirmCancel');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        let pendingDeleteId = null;
+
+        function showConfirmDelete(id) {
+            const app = applications.find(a => a.id === id);
+            if (!app) return;
+            pendingDeleteId = id;
+            confirmDetails.textContent = `"${app.company} - ${app.position}"`;
+            confirmBackdrop.classList.add('active');
+        }
+
+        function hideConfirmDelete() {
+            confirmBackdrop.classList.remove('active');
+            pendingDeleteId = null;
+        }
+
+        confirmCancel.addEventListener('click', hideConfirmDelete);
+        confirmBackdrop.addEventListener('click', (e) => { if (e.target === confirmBackdrop) hideConfirmDelete(); });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
+            await performDelete(pendingDeleteId);
+            hideConfirmDelete();
+        });
+
         async function deleteApp(id) {
+            showConfirmDelete(id);
+        }
+
+        async function performDelete(id) {
             const idx = applications.findIndex(a => a.id === id);
             if (idx === -1) return;
             deletedApp = { ...applications[idx], index: idx };
