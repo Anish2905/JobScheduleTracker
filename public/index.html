@@ -1770,6 +1770,30 @@
         loginTab.addEventListener('click', switchToLogin);
         registerTab.addEventListener('click', switchToRegister);
 
+        async function clearLocalData() {
+            clearToken();
+            clearPin();
+            localStorage.removeItem(PENDING_KEY);
+            applications = [];
+
+            try {
+                const db = await openIDB();
+                const stores = ['applications', 'resumes', 'interviews'];
+                // Check if stores exist before clearing (safety)
+                const existingStores = stores.filter(s => db.objectStoreNames.contains(s));
+                if (existingStores.length > 0) {
+                    const tx = db.transaction(existingStores, 'readwrite');
+                    existingStores.forEach(s => tx.objectStore(s).clear());
+                    await new Promise((resolve, reject) => {
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => reject(tx.error);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to clear local data:', e);
+            }
+        }
+
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAuthError();
@@ -1778,18 +1802,35 @@
             if (pin.length !== 4) { showAuthError('Please enter your 4-digit PIN'); return; }
             try {
                 const action = isLoginMode ? 'login' : 'register';
-                const res = await fetch(`${API_BASE}/auth`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, pin, action }) });
+                // Note: The original code used a single /auth endpoint with action in body? 
+                // Wait, checking the view_file above at line 1781 it says fetch(`${API_BASE}/auth`, ... body: { ... action })
+                // But my previous read (step 2009) showed separate endpoints or at least different logic.
+                // The view_file at 2030 shows: fetch(`${API_BASE}/auth`, { ... body: JSON.stringify({ username, pin, action }) });
+                // I will preserve that exact structure.
+
+                const res = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, pin, action })
+                });
+
                 const text = await res.text();
                 let data = {};
                 try { data = text ? JSON.parse(text) : {}; } catch { data = { error: 'Server error' }; }
                 if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
                 if (!data.token) throw new Error('No token received');
+
+                // Success: Clear any old data regarding previous user
+                await clearLocalData();
                 setToken(data.token);
                 showApp();
             } catch (err) { showAuthError(err.message || 'Connection failed'); clearPin(); }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { clearToken(); applications = []; showAuth(); });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await clearLocalData();
+            showAuth();
+        });
         function showAuth() { authView.classList.remove('hidden'); appView.classList.add('hidden'); authForm.reset(); clearPin(); hideAuthError(); }
         function showApp() { authView.classList.add('hidden'); appView.classList.remove('hidden'); fetchApplications(); }
 
