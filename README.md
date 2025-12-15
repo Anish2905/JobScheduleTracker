@@ -14,31 +14,25 @@ Open http://localhost:3000
 
 ---
 
-## Deploy to Railway (Free)
+## Deploy to Railway
 
-1. Push this repo to GitHub
-2. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
-3. Select your repo
-4. Railway auto-detects Node.js and deploys
-5. Get your public URL from the dashboard
-
----
-
-## Deploy to Render (Free)
-
-1. Push this repo to GitHub
-2. Go to [render.com](https://render.com) → New → Web Service
-3. Connect your GitHub repo
-4. Settings:
-   - **Build Command:** `cd server && npm install`
-   - **Start Command:** `cd server && npm start`
-5. Deploy and get your public URL
+1. Go to [railway.app](https://railway.app) → New Project → Deploy from GitHub
+2. Select `Anish2905/JobScheduleTracker`
+3. Click on the service → Settings → Set **Root Directory** to `server`
+4. Settings → Networking → Generate Domain → Port: `3000`
+5. Done! Access your app at the generated URL
 
 ---
 
-## Access from Phone
+## Deploy to Render
 
-After deploying, open the public URL on any device.
+1. Go to [render.com](https://render.com) → New → Web Service
+2. Connect your GitHub repo
+3. Settings:
+   - **Root Directory:** `server`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+4. Create Web Service → Get your public URL
 
 ---
 
@@ -47,10 +41,9 @@ After deploying, open the public URL on any device.
 ```
 JobScheduleTracker/
 ├── server/
-│   ├── package.json    # Dependencies
 │   ├── server.js       # Express API
-│   ├── database.js     # SQLite setup
-│   └── applications.db # Data (auto-created)
+│   ├── database.js     # SQLite
+│   └── package.json
 ├── public/
 │   └── index.html      # Frontend
 └── README.md
@@ -58,7 +51,7 @@ JobScheduleTracker/
 
 ---
 
-## API Endpoints
+## API
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
