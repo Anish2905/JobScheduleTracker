@@ -16,10 +16,21 @@ async function initDatabase() {
     db = new SQL.Database();
   }
 
-  // Initialize schema
+  // Initialize schema - Users table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    )
+  `);
+
+  // Applications table with user_id
   db.run(`
     CREATE TABLE IF NOT EXISTS applications (
       id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
       company TEXT NOT NULL,
       position TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'wishlist',
@@ -27,7 +38,8 @@ async function initDatabase() {
       url TEXT,
       notes TEXT,
       created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
     )
   `);
 
