@@ -104,33 +104,33 @@
             --shadow-modal: 0 12px 24px hsla(0, 0%, 0%, 0.6), 0 4px 8px hsla(0, 0%, 0%, 0.4);
         }
 
-        /* Dark mode status badges - proper contrast */
-        [data-theme="dark"] .status-wishlist {
+        /* Dark mode status badges - ONLY for badge element, not cards */
+        [data-theme="dark"] .app-status.status-wishlist {
             background: hsl(200, 60%, 20%);
             color: hsl(200, 80%, 70%);
         }
 
-        [data-theme="dark"] .status-applied {
+        [data-theme="dark"] .app-status.status-applied {
             background: hsl(270, 50%, 22%);
             color: hsl(270, 70%, 75%);
         }
 
-        [data-theme="dark"] .status-interview {
+        [data-theme="dark"] .app-status.status-interview {
             background: hsl(35, 70%, 18%);
             color: hsl(35, 95%, 70%);
         }
 
-        [data-theme="dark"] .status-offer {
+        [data-theme="dark"] .app-status.status-offer {
             background: hsl(155, 50%, 18%);
             color: hsl(155, 65%, 60%);
         }
 
-        [data-theme="dark"] .status-accepted {
+        [data-theme="dark"] .app-status.status-accepted {
             background: hsl(145, 55%, 16%);
             color: hsl(145, 75%, 55%);
         }
 
-        [data-theme="dark"] .status-rejected {
+        [data-theme="dark"] .app-status.status-rejected {
             background: hsl(0, 50%, 20%);
             color: hsl(0, 70%, 70%);
         }
@@ -650,29 +650,35 @@
             opacity: 0.7;
         }
 
-        /* Status-based left border colors */
+        /* Status-based left border colors - cards get ONLY a subtle left border, not full backgrounds */
         .app-card.status-wishlist {
-            border-left: 4px solid var(--color-wishlist);
+            border-left: 3px solid var(--color-wishlist);
+            background: var(--color-surface);
         }
 
         .app-card.status-applied {
-            border-left: 4px solid var(--color-applied);
+            border-left: 3px solid var(--color-applied);
+            background: var(--color-surface);
         }
 
         .app-card.status-interview {
-            border-left: 4px solid var(--color-interview);
+            border-left: 3px solid var(--color-interview);
+            background: var(--color-surface);
         }
 
         .app-card.status-offer {
-            border-left: 4px solid var(--color-offer);
+            border-left: 3px solid var(--color-offer);
+            background: var(--color-surface);
         }
 
         .app-card.status-accepted {
-            border-left: 4px solid var(--color-accepted);
+            border-left: 3px solid var(--color-accepted);
+            background: var(--color-surface);
         }
 
         .app-card.status-rejected {
-            border-left: 4px solid var(--color-rejected);
+            border-left: 3px solid var(--color-rejected);
+            background: var(--color-surface);
         }
 
         /* Premium gradient accent bar - only shows on hover for non-status cards */
@@ -778,33 +784,33 @@
             opacity: 1;
         }
 
-        /* Status Badge Colors - using tints of status color (per rule: no grey on colored bg) */
-        .status-wishlist {
+        /* Status Badge Colors - ONLY for the badge element, not cards */
+        .app-status.status-wishlist {
             background: hsl(200, 80%, 93%);
             color: hsl(200, 80%, 35%);
         }
 
-        .status-applied {
+        .app-status.status-applied {
             background: hsl(270, 70%, 93%);
             color: hsl(270, 70%, 40%);
         }
 
-        .status-interview {
+        .app-status.status-interview {
             background: hsl(35, 95%, 90%);
             color: hsl(35, 95%, 30%);
         }
 
-        .status-offer {
+        .app-status.status-offer {
             background: hsl(155, 65%, 90%);
             color: hsl(155, 65%, 28%);
         }
 
-        .status-accepted {
+        .app-status.status-accepted {
             background: hsl(145, 75%, 90%);
             color: hsl(145, 75%, 25%);
         }
 
-        .status-rejected {
+        .app-status.status-rejected {
             background: hsl(0, 70%, 93%);
             color: hsl(0, 70%, 40%);
         }
