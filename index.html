@@ -104,33 +104,33 @@
             --shadow-modal: 0 12px 24px hsla(0, 0%, 0%, 0.6), 0 4px 8px hsla(0, 0%, 0%, 0.4);
         }
 
-        /* Dark mode status badges - proper contrast */
-        [data-theme="dark"] .status-wishlist {
+        /* Dark mode status badges - ONLY for badge element, not cards */
+        [data-theme="dark"] .app-status.status-wishlist {
             background: hsl(200, 60%, 20%);
             color: hsl(200, 80%, 70%);
         }
 
-        [data-theme="dark"] .status-applied {
+        [data-theme="dark"] .app-status.status-applied {
             background: hsl(270, 50%, 22%);
             color: hsl(270, 70%, 75%);
         }
 
-        [data-theme="dark"] .status-interview {
+        [data-theme="dark"] .app-status.status-interview {
             background: hsl(35, 70%, 18%);
             color: hsl(35, 95%, 70%);
         }
 
-        [data-theme="dark"] .status-offer {
+        [data-theme="dark"] .app-status.status-offer {
             background: hsl(155, 50%, 18%);
             color: hsl(155, 65%, 60%);
         }
 
-        [data-theme="dark"] .status-accepted {
+        [data-theme="dark"] .app-status.status-accepted {
             background: hsl(145, 55%, 16%);
             color: hsl(145, 75%, 55%);
         }
 
-        [data-theme="dark"] .status-rejected {
+        [data-theme="dark"] .app-status.status-rejected {
             background: hsl(0, 50%, 20%);
             color: hsl(0, 70%, 70%);
         }
@@ -166,11 +166,47 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* ===== Keyframe Animations ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 24px hsla(var(--hue-primary), 85%, 50%, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 8px 32px hsla(var(--hue-primary), 85%, 50%, 0.5);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
         /* ===== Layout ===== */
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: var(--space-5);
+            animation: fadeInUp 0.4s ease-out;
         }
 
         header {
@@ -178,8 +214,18 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: var(--space-6);
+            padding: var(--space-5);
             padding-bottom: var(--space-5);
-            border-bottom: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
+            background: hsla(var(--hue-primary), 30%, 98%, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid hsla(var(--hue-primary), 40%, 90%, 0.5);
+            box-shadow: 0 2px 12px hsla(var(--hue-primary), 50%, 50%, 0.05);
+        }
+
+        [data-theme="dark"] header {
+            background: hsla(240, 15%, 15%, 0.7);
+            border-color: hsla(240, 15%, 25%, 0.5);
         }
 
         h1 {
@@ -218,15 +264,84 @@
             cursor: not-allowed;
         }
 
-        .btn-primary {
-            background: var(--color-primary);
+        .btn-danger {
+            background: linear-gradient(135deg, hsl(0, 70%, 55%) 0%, hsl(0, 80%, 45%) 100%);
             color: white;
         }
 
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px hsla(0, 70%, 50%, 0.4);
+        }
+
+        /* Confirm Modal */
+        .confirm-modal {
+            background: var(--color-surface);
+            border-radius: var(--radius-xl);
+            padding: var(--space-7);
+            max-width: 360px;
+            text-align: center;
+            box-shadow: var(--shadow-modal);
+            animation: fadeInUp 0.2s ease-out;
+        }
+
+        .confirm-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-4);
+            filter: grayscale(0.2);
+        }
+
+        .confirm-title {
+            font-size: var(--font-size-xl);
+            font-weight: 700;
+            color: var(--color-text);
+            margin-bottom: var(--space-3);
+        }
+
+        .confirm-details {
+            font-size: var(--font-size-base);
+            font-weight: 600;
+            color: var(--color-primary);
+            margin-bottom: var(--space-2);
+            word-break: break-word;
+        }
+
+        .confirm-message {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-tertiary);
+            margin-bottom: var(--space-6);
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-primary) 0%, hsl(280, 75%, 55%) 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
         .btn-primary:hover:not(:disabled) {
-            background: var(--color-primary-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px hsla(var(--hue-primary), 85%, 50%, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px hsla(var(--hue-primary), 85%, 50%, 0.4);
         }
 
         .btn-secondary {
@@ -254,13 +369,43 @@
         }
 
         /* ===== Auth Page ===== */
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         .auth-container {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             padding: var(--space-5);
-            background: linear-gradient(135deg, hsl(var(--hue-primary), 85%, 97%) 0%, hsl(200, 80%, 97%) 100%);
+            background: linear-gradient(-45deg,
+                    hsl(var(--hue-primary), 85%, 95%),
+                    hsl(200, 80%, 95%),
+                    hsl(280, 70%, 95%),
+                    hsl(var(--hue-primary), 85%, 95%));
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
+        }
+
+        [data-theme="dark"] .auth-container {
+            background: linear-gradient(-45deg,
+                    hsl(var(--hue-primary), 40%, 12%),
+                    hsl(200, 40%, 12%),
+                    hsl(280, 40%, 12%),
+                    hsl(var(--hue-primary), 40%, 12%));
+            background-size: 400% 400%;
+            animation: gradientFlow 15s ease infinite;
         }
 
         .auth-card {
@@ -485,13 +630,84 @@
             border-radius: var(--radius-md);
             box-shadow: var(--shadow-card);
             transition: all var(--transition-base);
-            border: 1px solid transparent;
+            border: 1px solid var(--color-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Interview reminder - highlight cards with interview status */
+        .app-card.interview-highlight {
+            border-left: 4px solid var(--color-interview);
+            background: linear-gradient(90deg, hsla(35, 95%, 55%, 0.05) 0%, transparent 30%);
+        }
+
+        .app-card.interview-highlight::after {
+            content: '📅';
+            position: absolute;
+            top: var(--space-3);
+            right: var(--space-3);
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        /* Status-based left border colors - cards get ONLY a subtle left border, not full backgrounds */
+        .app-card.status-wishlist {
+            border-left: 3px solid var(--color-wishlist);
+            background: var(--color-surface);
+        }
+
+        .app-card.status-applied {
+            border-left: 3px solid var(--color-applied);
+            background: var(--color-surface);
+        }
+
+        .app-card.status-interview {
+            border-left: 3px solid var(--color-interview);
+            background: var(--color-surface);
+        }
+
+        .app-card.status-offer {
+            border-left: 3px solid var(--color-offer);
+            background: var(--color-surface);
+        }
+
+        .app-card.status-accepted {
+            border-left: 3px solid var(--color-accepted);
+            background: var(--color-surface);
+        }
+
+        .app-card.status-rejected {
+            border-left: 3px solid var(--color-rejected);
+            background: var(--color-surface);
+        }
+
+        /* Premium gradient accent bar - only shows on hover for non-status cards */
+        .app-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--color-border-hover);
+            opacity: 0;
+            transition: opacity var(--transition-fast);
+        }
+
+        .app-card:hover::before {
+            opacity: 1;
+        }
+
+        /* Don't show hover border if status border is already there */
+        .app-card[class*="status-"]::before,
+        .app-card.interview-highlight::before {
+            display: none;
         }
 
         .app-card:hover {
             box-shadow: var(--shadow-card-hover);
             transform: translateY(-2px);
-            border-color: var(--color-border);
+            border-color: var(--color-border-hover);
         }
 
         .app-card-main {
@@ -568,33 +784,33 @@
             opacity: 1;
         }
 
-        /* Status Badge Colors - using tints of status color (per rule: no grey on colored bg) */
-        .status-wishlist {
+        /* Status Badge Colors - ONLY for the badge element, not cards */
+        .app-status.status-wishlist {
             background: hsl(200, 80%, 93%);
             color: hsl(200, 80%, 35%);
         }
 
-        .status-applied {
+        .app-status.status-applied {
             background: hsl(270, 70%, 93%);
             color: hsl(270, 70%, 40%);
         }
 
-        .status-interview {
+        .app-status.status-interview {
             background: hsl(35, 95%, 90%);
             color: hsl(35, 95%, 30%);
         }
 
-        .status-offer {
+        .app-status.status-offer {
             background: hsl(155, 65%, 90%);
             color: hsl(155, 65%, 28%);
         }
 
-        .status-accepted {
+        .app-status.status-accepted {
             background: hsl(145, 75%, 90%);
             color: hsl(145, 75%, 25%);
         }
 
-        .status-rejected {
+        .app-status.status-rejected {
             background: hsl(0, 70%, 93%);
             color: hsl(0, 70%, 40%);
         }
@@ -785,7 +1001,7 @@
             align-items: center;
             gap: var(--space-3);
             padding: var(--space-4) var(--space-5);
-            background: var(--color-text);
+            background: hsl(240, 15%, 20%);
             color: white;
             border-radius: var(--radius-md);
             font-size: var(--font-size-sm);
@@ -821,6 +1037,62 @@
             background: hsla(0, 0%, 100%, 0.3);
         }
 
+        /* Skeleton Loading */
+        @keyframes skeletonShimmer {
+            0% {
+                background-position: -200px 0;
+            }
+
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg,
+                    var(--color-border) 0%,
+                    var(--color-surface-elevated) 50%,
+                    var(--color-border) 100%);
+            background-size: 200px 100%;
+            animation: skeletonShimmer 1.5s ease-in-out infinite;
+            border-radius: var(--radius-sm);
+        }
+
+        .skeleton-card {
+            height: 100px;
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-3);
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin-bottom: var(--space-2);
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        /* Pull to Refresh Indicator */
+        .pull-indicator {
+            position: fixed;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-surface);
+            padding: var(--space-3) var(--space-5);
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            transition: top 0.3s ease;
+            z-index: 100;
+        }
+
+        .pull-indicator.visible {
+            top: 0;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -828,6 +1100,44 @@
         @media (max-width: 600px) {
             .container {
                 padding: var(--space-4);
+            }
+
+            /* Stack header on mobile */
+            header {
+                flex-direction: column;
+                gap: var(--space-4);
+                align-items: stretch;
+                text-align: center;
+            }
+
+            header>div:first-child {
+                justify-content: center;
+            }
+
+            header>div:last-child {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            h1 {
+                font-size: var(--font-size-lg);
+            }
+
+            /* Stats bar wrapping */
+            .stats-bar {
+                flex-wrap: wrap;
+                gap: var(--space-2);
+                justify-content: center;
+            }
+
+            /* Controls stacking */
+            .controls {
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+
+            .select-wrap {
+                min-width: 100%;
             }
 
             .form-row {
@@ -842,10 +1152,13 @@
             .app-card-actions {
                 justify-content: flex-end;
                 opacity: 1;
+                /* Always visible on mobile per rules */
             }
 
             .auth-card {
                 padding: var(--space-5);
+                margin: var(--space-4);
+                max-width: calc(100vw - var(--space-8));
             }
 
             .modal-body,
@@ -853,6 +1166,21 @@
             .modal-footer {
                 padding-left: var(--space-4);
                 padding-right: var(--space-4);
+            }
+
+            .modal-content {
+                margin: var(--space-4);
+                max-height: calc(100vh - var(--space-8));
+            }
+
+            /* Ensure buttons stay touchable */
+            .btn {
+                min-height: 48px;
+                /* Slightly larger on mobile for easier touch */
+            }
+
+            .btn-icon {
+                font-size: 20px;
             }
         }
     </style>
@@ -898,6 +1226,9 @@
         </div>
     </div>
 
+    <!-- Pull to Refresh -->
+    <div class="pull-indicator" id="pullIndicator">↻ Pull to refresh</div>
+
     <!-- App View -->
     <div class="container hidden" id="appView">
         <header>
@@ -909,6 +1240,7 @@
                 <button class="btn btn-icon" id="themeToggle" aria-label="Toggle theme"
                     title="Toggle dark mode">🌙</button>
                 <button class="btn btn-icon" id="exportBtn" aria-label="Export to CSV" title="Export to CSV">📥</button>
+                <button class="btn btn-icon" id="syncBtn" aria-label="Sync Now" title="Sync Now">🔄</button>
                 <button class="btn btn-primary" id="addBtn">+ Add</button>
                 <button class="btn btn-secondary" id="logoutBtn">Logout</button>
             </div>
@@ -987,6 +1319,20 @@
                         <textarea id="notes" name="notes"
                             placeholder="Interview details, contacts, follow-ups..."></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="resumeUrl">Resume Link</label>
+                        <div style="display: flex; gap: var(--space-2); align-items: center;">
+                            <input type="url" id="resumeUrl" name="resumeUrl"
+                                placeholder="https://drive.google.com/... or https://yoursite.com/resume.pdf"
+                                style="font-size: var(--font-size-sm); flex: 1;">
+                            <button type="button" id="viewResumeBtn" class="btn btn-icon"
+                                onclick="const url = document.getElementById('resumeUrl').value; if(url) window.open(url, '_blank'); else showToast('No resume link provided', false, true);"
+                                title="View Resume" style="padding: 8px 12px;">👁️</button>
+                        </div>
+                        <small style="display: block; margin-top: var(--space-1); color: var(--color-text-tertiary);">
+                            Paste a link to your resume (Google Drive, Dropbox, or direct URL)
+                        </small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
@@ -998,6 +1344,95 @@
 
     <div class="toast" id="toast"><span id="toastMessage"></span><button class="toast-undo" id="toastUndo"
             style="display: none;">Undo</button></div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop" id="confirmBackdrop">
+        <div class="confirm-modal">
+            <div class="confirm-icon">🗑️</div>
+            <h2 class="confirm-title">Delete Application?</h2>
+            <p class="confirm-details" id="confirmDetails"></p>
+            <p class="confirm-message">This action cannot be undone.</p>
+            <div class="confirm-buttons">
+                <button type="button" class="btn btn-secondary" id="confirmCancel" style="flex: 1;">Keep It</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete" style="flex: 1;">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interview Modal -->
+    <div class="modal-backdrop" id="interviewModalBackdrop">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2 id="interviewModalTitle">Add Interview Round</h2>
+                <button class="btn btn-icon" id="closeInterviewModal" aria-label="Close">✕</button>
+            </div>
+            <form id="interviewForm">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewRound">Round #</label>
+                            <input type="number" id="interviewRound" name="round" min="1" value="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewType">Type</label>
+                            <select id="interviewType" name="type" required>
+                                <option value="HR">HR</option>
+                                <option value="Tech">Tech</option>
+                                <option value="System Design">System Design</option>
+                                <option value="Take-home">Take-home</option>
+                                <option value="Culture">Culture Fit</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewDateTime">Date & Time</label>
+                            <input type="datetime-local" id="interviewDateTime" name="dateTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewTimezone">Timezone</label>
+                            <select id="interviewTimezone" name="timezone">
+                                <option value="Asia/Kolkata">IST (India)</option>
+                                <option value="America/New_York">EST (New York)</option>
+                                <option value="America/Los_Angeles">PST (LA)</option>
+                                <option value="Europe/London">GMT (London)</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="interviewerName">Interviewer Name</label>
+                            <input type="text" id="interviewerName" name="interviewerName"
+                                placeholder="e.g. John Smith">
+                        </div>
+                        <div class="form-group">
+                            <label for="interviewerRole">Interviewer Role</label>
+                            <input type="text" id="interviewerRole" name="interviewerRole"
+                                placeholder="e.g. Senior Engineer">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewNotes">Notes</label>
+                        <textarea id="interviewNotes" name="notes" rows="2"
+                            placeholder="Preparation notes, questions to ask..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="interviewOutcome">Outcome</label>
+                        <select id="interviewOutcome" name="outcome">
+                            <option value="pending">⏳ Pending</option>
+                            <option value="passed">✅ Passed</option>
+                            <option value="failed">❌ Failed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelInterviewBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Interview</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         // ===== Theme Toggle (respects system preference, persists choice) =====
@@ -1048,7 +1483,7 @@
 
         // ===== IndexedDB Local Storage =====
         const DB_NAME = 'JobTrackerDB';
-        const DB_VERSION = 1;
+        const DB_VERSION = 2; // Bumped for resumes + interviews
         let idb = null;
         const SYNC_KEY = 'job_tracker_last_sync';
         const PENDING_KEY = 'job_tracker_pending';
@@ -1057,13 +1492,26 @@
             if (idb) return idb;
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onerror = () => reject(request.error);
+                request.onerror = (e) => { console.error('IDB error:', e); reject(request.error); };
+                request.onblocked = () => { console.warn('IDB blocked - close other tabs'); };
                 request.onsuccess = () => { idb = request.result; resolve(idb); };
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
+                    // Applications store
                     if (!db.objectStoreNames.contains('applications')) {
                         const store = db.createObjectStore('applications', { keyPath: 'id' });
                         store.createIndex('updatedAt', 'updatedAt');
+                    }
+                    // Resumes store (local-only, not synced)
+                    if (!db.objectStoreNames.contains('resumes')) {
+                        const resumeStore = db.createObjectStore('resumes', { keyPath: 'id' });
+                        resumeStore.createIndex('name', 'name');
+                    }
+                    // Interviews store
+                    if (!db.objectStoreNames.contains('interviews')) {
+                        const interviewStore = db.createObjectStore('interviews', { keyPath: 'id' });
+                        interviewStore.createIndex('applicationId', 'applicationId');
+                        interviewStore.createIndex('dateTime', 'dateTime');
                     }
                 };
             });
@@ -1109,6 +1557,86 @@
                 const request = store.get(id);
                 request.onsuccess = () => resolve(request.result);
                 request.onerror = () => reject(request.error);
+            });
+        }
+
+        // ===== Resume Functions =====
+        async function saveResume(resume) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readwrite');
+                const store = tx.objectStore('resumes');
+                store.put(resume);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function getAllResumes() {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readonly');
+                const store = tx.objectStore('resumes');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getResumeById(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readonly');
+                const store = tx.objectStore('resumes');
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteResume(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('resumes', 'readwrite');
+                const store = tx.objectStore('resumes');
+                store.delete(id);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        // ===== Interview Functions =====
+        async function saveInterview(interview) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readwrite');
+                const store = tx.objectStore('interviews');
+                store.put(interview);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function getInterviewsByAppId(appId) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readonly');
+                const store = tx.objectStore('interviews');
+                const index = store.index('applicationId');
+                const request = index.getAll(appId);
+                request.onsuccess = () => resolve(request.result.sort((a, b) => a.round - b.round));
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function deleteInterview(id) {
+            const db = await openIDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction('interviews', 'readwrite');
+                const store = tx.objectStore('interviews');
+                store.delete(id);
+                tx.oncomplete = () => resolve();
+                tx.onerror = () => reject(tx.error);
             });
         }
 
@@ -1262,6 +1790,31 @@
         loginTab.addEventListener('click', switchToLogin);
         registerTab.addEventListener('click', switchToRegister);
 
+        async function clearLocalData() {
+            clearToken();
+            clearPin();
+            localStorage.removeItem(PENDING_KEY);
+            localStorage.removeItem(SYNC_KEY);
+            applications = [];
+
+            try {
+                const db = await openIDB();
+                const stores = ['applications', 'resumes', 'interviews'];
+                // Check if stores exist before clearing (safety)
+                const existingStores = stores.filter(s => db.objectStoreNames.contains(s));
+                if (existingStores.length > 0) {
+                    const tx = db.transaction(existingStores, 'readwrite');
+                    existingStores.forEach(s => tx.objectStore(s).clear());
+                    await new Promise((resolve, reject) => {
+                        tx.oncomplete = () => resolve();
+                        tx.onerror = () => reject(tx.error);
+                    });
+                }
+            } catch (e) {
+                console.error('Failed to clear local data:', e);
+            }
+        }
+
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             hideAuthError();
@@ -1270,18 +1823,35 @@
             if (pin.length !== 4) { showAuthError('Please enter your 4-digit PIN'); return; }
             try {
                 const action = isLoginMode ? 'login' : 'register';
-                const res = await fetch(`${API_BASE}/auth`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, pin, action }) });
+                // Note: The original code used a single /auth endpoint with action in body? 
+                // Wait, checking the view_file above at line 1781 it says fetch(`${API_BASE}/auth`, ... body: { ... action })
+                // But my previous read (step 2009) showed separate endpoints or at least different logic.
+                // The view_file at 2030 shows: fetch(`${API_BASE}/auth`, { ... body: JSON.stringify({ username, pin, action }) });
+                // I will preserve that exact structure.
+
+                const res = await fetch(`${API_BASE}/auth`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, pin, action })
+                });
+
                 const text = await res.text();
                 let data = {};
                 try { data = text ? JSON.parse(text) : {}; } catch { data = { error: 'Server error' }; }
                 if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
                 if (!data.token) throw new Error('No token received');
+
+                // Success: Clear any old data regarding previous user
+                await clearLocalData();
                 setToken(data.token);
                 showApp();
             } catch (err) { showAuthError(err.message || 'Connection failed'); clearPin(); }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => { clearToken(); applications = []; showAuth(); });
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await clearLocalData();
+            showAuth();
+        });
         function showAuth() { authView.classList.remove('hidden'); appView.classList.add('hidden'); authForm.reset(); clearPin(); hideAuthError(); }
         function showApp() { authView.classList.add('hidden'); appView.classList.remove('hidden'); fetchApplications(); }
 
@@ -1315,13 +1885,59 @@
             applications.forEach(app => counts[app.status]++);
             statsBar.innerHTML = Object.entries(counts).filter(([_, c]) => c > 0).map(([s, c]) => `<div class="stat"><span class="stat-dot dot-${s}"></span><span class="stat-count">${c}</span><span class="stat-label">${s}</span></div>`).join('');
         }
-        function renderList() {
+        async function renderList() {
             const filter = filterStatus.value, sort = sortBy.value;
             let filtered = filter === 'all' ? [...applications] : applications.filter(a => a.status === filter);
             filtered.sort((a, b) => sort === 'newest' ? new Date(b.createdAt) - new Date(a.createdAt) : sort === 'oldest' ? new Date(a.createdAt) - new Date(b.createdAt) : a.company.localeCompare(b.company));
             if (!filtered.length) { appList.innerHTML = ''; emptyState.classList.remove('hidden'); return; }
             emptyState.classList.add('hidden');
-            appList.innerHTML = filtered.map(app => `<div class="app-card" data-id="${app.id}"><div class="app-card-main"><div class="app-company">${escapeHtml(app.company)}</div><div class="app-position">${escapeHtml(app.position)}</div><div class="app-meta"><span class="app-status status-${app.status}">${app.status}</span>${app.appliedDate ? `<span class="app-meta-item">${formatDate(app.appliedDate)}</span>` : ''}${app.url ? `<a href="${escapeHtml(app.url)}" target="_blank" rel="noopener">View posting →</a>` : ''}</div>${app.notes ? `<div class="app-notes">${escapeHtml(app.notes)}</div>` : ''}</div><div class="app-card-actions"><button class="btn btn-icon" onclick="editApp('${app.id}')" aria-label="Edit">✏️</button><button class="btn btn-icon" onclick="deleteApp('${app.id}')" aria-label="Delete">🗑️</button></div></div>`).join('');
+
+            // Fetch interviews for all apps
+            const interviewsMap = {};
+            for (const app of filtered) {
+                interviewsMap[app.id] = await getInterviewsByAppId(app.id);
+            }
+
+            appList.innerHTML = filtered.map(app => {
+                const interviews = interviewsMap[app.id] || [];
+                // Only show interviews for interview/offer/accepted statuses
+                const showInterviews = ['interview', 'offer', 'accepted'].includes(app.status) && interviews.length > 0;
+                const interviewsHtml = showInterviews ? `
+                    <div class="app-interviews" style="margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--color-border);">
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-tertiary); margin-bottom: var(--space-2);">📅 Interviews:</div>
+                        ${interviews.map(i => `
+                            <div style="font-size: var(--font-size-sm); display: flex; gap: var(--space-2); align-items: center; margin-bottom: var(--space-1);">
+                                <span style="font-weight: 600;">R${i.round}</span>
+                                <span class="status-${i.outcome === 'passed' ? 'accepted' : i.outcome === 'failed' ? 'rejected' : 'wishlist'}" style="font-size: 10px; padding: 2px 6px; border-radius: 4px;">${i.type}</span>
+                                <span>${i.dateTime ? new Date(i.dateTime).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                                ${i.outcome === 'passed' ? '✅' : i.outcome === 'failed' ? '❌' : '⏳'}
+                                <button onclick="event.stopPropagation(); removeInterview('${i.id}')" title="Delete interview" style="background:none;border:none;cursor:pointer;font-size:12px;opacity:0.6;">🗑️</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '';
+
+                return `
+                <div class="app-card status-${app.status} ${app.status === 'interview' ? 'interview-highlight' : ''}" data-id="${app.id}">
+                    <div class="app-card-main">
+                        <div class="app-company">${escapeHtml(app.company)}</div>
+                        <div class="app-position">${escapeHtml(app.position)}</div>
+                        <div class="app-meta">
+                            <span class="app-status status-${app.status}">${app.status}</span>
+                            ${app.appliedDate ? `<span class="app-meta-item">${formatDate(app.appliedDate)}</span>` : ''}
+                            ${app.resumeUrl ? `<a href="${escapeHtml(app.resumeUrl)}" target="_blank" rel="noopener" title="View Resume">📄 Resume</a>` : ''}
+                            ${app.url ? `<a href="${escapeHtml(app.url)}" target="_blank" rel="noopener">View posting →</a>` : ''}
+                        </div>
+                        ${app.notes ? `<div class="app-notes">${escapeHtml(app.notes)}</div>` : ''}
+                        ${interviewsHtml}
+                    </div>
+                    <div class="app-card-actions">
+                        ${app.status === 'interview' ? `<button class="btn btn-icon" onclick="openInterviewModal('${app.id}')" aria-label="Add Interview" title="Add Interview">📅</button>` : ''}
+                        <button class="btn btn-icon" onclick="editApp('${app.id}')" aria-label="Edit">✏️</button>
+                        <button class="btn btn-icon" onclick="deleteApp('${app.id}')" aria-label="Delete">🗑️</button>
+                    </div>
+                </div>
+            `}).join('');
         }
         function escapeHtml(s) { return s ? s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : ''; }
         function formatDate(d) { try { return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); } catch { return d; } }
@@ -1331,27 +1947,69 @@
 
         // Local-first CRUD functions
         async function addApplication(data) {
-            const app = { id: generateId(), company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+            const app = { id: generateId(), company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, resumeUrl: data.resumeUrl?.trim() || null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
             await saveLocal(app);
             addPendingChange(app.id);
             applications.unshift(app);
             render();
             showToast('Application added');
-            syncToCloud(); // Try to sync immediately
+            syncToCloud();
+            // Auto-open interview modal for new interview applications
+            if (data.status === 'interview') {
+                setTimeout(() => openInterviewModal(app.id), 300);
+            }
         }
         async function updateApplication(id, data) {
             const existing = await getLocalById(id);
             if (!existing) return;
-            const updated = { ...existing, company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, updatedAt: new Date().toISOString() };
+            const statusChangedToInterview = existing.status !== 'interview' && data.status === 'interview';
+            const updated = { ...existing, company: data.company.trim(), position: data.position.trim(), status: data.status, appliedDate: data.appliedDate || null, url: data.url.trim() || null, notes: data.notes.trim() || null, resumeUrl: data.resumeUrl?.trim() || null, updatedAt: new Date().toISOString() };
             await saveLocal(updated);
             addPendingChange(id);
             const idx = applications.findIndex(a => a.id === id);
             if (idx !== -1) applications[idx] = updated;
             render();
             showToast('Changes saved');
-            syncToCloud();
+            // Auto-open interview modal if status changed to interview
+            if (statusChangedToInterview) {
+                setTimeout(() => openInterviewModal(id), 300);
+            }
         }
+
+        // Delete confirmation modal
+        const confirmBackdrop = document.getElementById('confirmBackdrop');
+        const confirmDetails = document.getElementById('confirmDetails');
+        const confirmCancel = document.getElementById('confirmCancel');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        let pendingDeleteId = null;
+
+        function showConfirmDelete(id) {
+            const app = applications.find(a => a.id === id);
+            if (!app) return;
+            pendingDeleteId = id;
+            confirmDetails.textContent = `"${app.company} - ${app.position}"`;
+            confirmBackdrop.classList.add('active');
+        }
+
+        function hideConfirmDelete() {
+            confirmBackdrop.classList.remove('active');
+            pendingDeleteId = null;
+        }
+
+        confirmCancel.addEventListener('click', hideConfirmDelete);
+        confirmBackdrop.addEventListener('click', (e) => { if (e.target === confirmBackdrop) hideConfirmDelete(); });
+
+        confirmDeleteBtn.addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
+            await performDelete(pendingDeleteId);
+            hideConfirmDelete();
+        });
+
         async function deleteApp(id) {
+            showConfirmDelete(id);
+        }
+
+        async function performDelete(id) {
             const idx = applications.findIndex(a => a.id === id);
             if (idx === -1) return;
             deletedApp = { ...applications[idx], index: idx };
@@ -1375,7 +2033,7 @@
             showToast('Restored');
             syncToCloud();
         }
-        function editApp(id) {
+        async function editApp(id) {
             const app = applications.find(a => a.id === id); if (!app) return;
             editingId = id;
             document.getElementById('company').value = app.company;
@@ -1384,6 +2042,7 @@
             document.getElementById('appliedDate').value = app.appliedDate || '';
             document.getElementById('url').value = app.url || '';
             document.getElementById('notes').value = app.notes || '';
+            document.getElementById('resumeUrl').value = app.resumeUrl || '';
             openModal(true);
         }
 
@@ -1423,6 +2082,28 @@
         }
         document.getElementById('exportBtn').addEventListener('click', exportToCSV);
 
+        // Manual Sync Button
+        document.getElementById('syncBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('syncBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳';
+            showToast('Syncing...');
+            try {
+                await syncToCloud();
+                await syncFromCloud();
+                // Resume sync no longer needed - using simple URL links now
+                applications = await getAllLocal();
+                render();
+                showToast('✓ Synced successfully');
+            } catch (e) {
+                console.error('Manual sync failed:', e);
+                showToast('Sync failed', false, true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄';
+            }
+        });
+
         document.getElementById('addBtn').addEventListener('click', () => openModal());
         document.getElementById('addBtnEmpty').addEventListener('click', () => openModal());
         document.getElementById('closeModal').addEventListener('click', closeModal);
@@ -1435,6 +2116,144 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modalBackdrop.classList.contains('active')) closeModal(); });
 
         if (getToken()) showApp(); else showAuth();
+
+        // ===== Pull to Refresh =====
+        const pullIndicator = document.getElementById('pullIndicator');
+        let touchStartY = 0;
+        let isPulling = false;
+
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY === 0) touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (touchStartY === 0) return;
+            const touchY = e.touches[0].clientY;
+            const diff = touchY - touchStartY;
+            if (diff > 60 && window.scrollY === 0) {
+                isPulling = true;
+                pullIndicator.classList.add('visible');
+            }
+        });
+
+        document.addEventListener('touchend', async () => {
+            if (isPulling) {
+                pullIndicator.textContent = '↻ Refreshing...';
+                await syncFromCloud();
+                render();
+                showToast('Refreshed');
+                pullIndicator.textContent = '↻ Pull to refresh';
+            }
+            pullIndicator.classList.remove('visible');
+            touchStartY = 0;
+            isPulling = false;
+        });
+
+        // Resume feature now uses simple URL links - no file upload/sync needed
+
+        // ===== Interview Modal Handling =====
+        const interviewModalBackdrop = document.getElementById('interviewModalBackdrop');
+        const interviewForm = document.getElementById('interviewForm');
+        let currentInterviewAppId = null;
+        let editingInterviewId = null;
+
+        function openInterviewModal(appId, interviewData = null) {
+            currentInterviewAppId = appId;
+            editingInterviewId = interviewData?.id || null;
+            document.getElementById('interviewModalTitle').textContent = interviewData ? 'Edit Interview' : 'Add Interview Round';
+
+            if (interviewData) {
+                document.getElementById('interviewRound').value = interviewData.round || 1;
+                document.getElementById('interviewType').value = interviewData.type || 'Tech';
+                document.getElementById('interviewDateTime').value = interviewData.dateTime?.slice(0, 16) || '';
+                document.getElementById('interviewTimezone').value = interviewData.timezone || 'Asia/Kolkata';
+                document.getElementById('interviewerName').value = interviewData.interviewerName || '';
+                document.getElementById('interviewerRole').value = interviewData.interviewerRole || '';
+                document.getElementById('interviewNotes').value = interviewData.notes || '';
+                document.getElementById('interviewOutcome').value = interviewData.outcome || 'pending';
+            } else {
+                interviewForm.reset();
+            }
+
+            interviewModalBackdrop.classList.add('active');
+        }
+
+        function closeInterviewModal() {
+            interviewModalBackdrop.classList.remove('active');
+            interviewForm.reset();
+            currentInterviewAppId = null;
+            editingInterviewId = null;
+        }
+
+        document.getElementById('closeInterviewModal').addEventListener('click', closeInterviewModal);
+        document.getElementById('cancelInterviewBtn').addEventListener('click', closeInterviewModal);
+        interviewModalBackdrop.addEventListener('click', (e) => { if (e.target === interviewModalBackdrop) closeInterviewModal(); });
+
+        interviewForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(interviewForm);
+            const interview = {
+                id: editingInterviewId || generateId(),
+                applicationId: currentInterviewAppId,
+                round: parseInt(formData.get('round')),
+                type: formData.get('type'),
+                dateTime: formData.get('dateTime'),
+                timezone: formData.get('timezone'),
+                interviewerName: formData.get('interviewerName') || null,
+                interviewerRole: formData.get('interviewerRole') || null,
+                notes: formData.get('notes') || null,
+                outcome: formData.get('outcome'),
+                createdAt: editingInterviewId ? undefined : new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            await saveInterview(interview);
+            showToast(editingInterviewId ? 'Interview updated' : 'Interview added');
+            closeInterviewModal();
+            render();
+        });
+
+        // Make openInterviewModal available globally
+        window.openInterviewModal = openInterviewModal;
+
+        // Populate resume dropdown on modal open
+        const originalOpenModal = openModal;
+        openModal = async function (isEdit = false) {
+            if (!isEdit) {
+                await showResumeUI(null); // New app - show upload section
+            }
+            originalOpenModal(isEdit);
+        };
+
+        // ===== View Resume =====
+        async function viewResume(resumeId) {
+            const resume = await getResumeById(resumeId);
+            if (!resume || !resume.fileData) {
+                showToast('Resume not found', false, true);
+                return;
+            }
+            // Open in new tab
+            const win = window.open();
+            if (resume.fileType === 'application/pdf') {
+                win.document.write(`<iframe src="${resume.fileData}" style="width:100%;height:100%;border:none;"></iframe>`);
+            } else {
+                // For DOC/DOCX, trigger download
+                const a = document.createElement('a');
+                a.href = resume.fileData;
+                a.download = resume.fileName;
+                a.click();
+                showToast(`Downloading ${resume.fileName}`);
+                if (win) win.close();
+            }
+        }
+        window.viewResume = viewResume;
+
+        // ===== Remove Interview =====
+        async function removeInterview(interviewId) {
+            await deleteInterview(interviewId);
+            showToast('Interview removed');
+            render();
+        }
+        window.removeInterview = removeInterview;
     </script>
 </body>
 
